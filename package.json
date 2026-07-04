@@ -1,0 +1,86 @@
+{
+  "name": "harvest-tracker",
+  "version": "1.1.0",
+  "private": true,
+  "description": "Local app for tracking garden harvests, watering, and charts.",
+  "license": "MIT",
+  "author": "harkonen",
+  "homepage": "https://github.com/harkonen/harvest-tracker",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/harkonen/harvest-tracker.git"
+  },
+  "bugs": {
+    "url": "https://github.com/harkonen/harvest-tracker/issues"
+  },
+  "main": "electron/main.cjs",
+  "scripts": {
+    "dev": "concurrently -k \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node server/index.js",
+    "dev:web": "vite --host 127.0.0.1",
+    "start": "node server/index.js",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "electron:dev": "concurrently -k \"npm:dev:web\" \"wait-on http://127.0.0.1:5174 && ELECTRON_RENDERER_URL=http://127.0.0.1:5174 electron .\"",
+    "electron:pack": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "@lucide/vue": "^1.23.0",
+    "plotly.js-dist-min": "^2.35.2",
+    "vue": "^3.5.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.1",
+    "concurrently": "^9.1.2",
+    "electron": "^33.2.1",
+    "electron-builder": "^25.1.8",
+    "vite": "^6.0.3",
+    "wait-on": "^8.0.1"
+  },
+  "build": {
+    "appId": "com.harkonen.harvesttracker",
+    "productName": "harvest-tracker",
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "server/series-store.js",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "deb"
+      ],
+      "artifactName": "harvest-tracker-${version}-${arch}.${ext}",
+      "category": "Utility",
+      "icon": "build/icons",
+      "maintainer": "harkonen <harkonen@users.noreply.github.com>",
+      "desktop": {
+        "Name": "Harvest tracker",
+        "StartupWMClass": "Harvest tracker"
+      }
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "artifactName": "harvest-tracker-${version}-${arch}-setup.${ext}"
+    },
+    "mac": {
+      "target": [
+        "dmg"
+      ],
+      "category": "public.app-category.productivity",
+      "artifactName": "harvest-tracker-${version}-${arch}-experimental.${ext}"
+    },
+    "deb": {
+      "afterInstall": "build/deb-after-install.sh"
+    }
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

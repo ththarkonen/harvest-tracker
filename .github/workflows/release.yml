@@ -1,0 +1,122 @@
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux
+            artifact_name: harvest-tracker-linux
+            os: ubuntu-latest
+            build-command: npx electron-builder --linux deb
+            upload-path: |
+              release/*.deb
+              release/SHA256SUMS-linux
+
+          - platform: windows
+            artifact_name: harvest-tracker-windows
+            os: windows-latest
+            build-command: npx electron-builder --win nsis
+            upload-path: |
+              release/*.exe
+              release/SHA256SUMS-windows
+
+          - platform: macos
+            artifact_name: harvest-tracker-macos-experimental
+            os: macos-latest
+            build-command: npx electron-builder --mac dmg
+            upload-path: |
+              release/*.dmg
+              release/SHA256SUMS-macos
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      - name: Build installer
+        run: ${{ matrix.build-command }}
+
+      - name: Create checksums
+        shell: bash
+        env:
+          PLATFORM: ${{ matrix.platform }}
+        run: |
+          node - <<'NODE'
+          const { createHash } = require("node:crypto");
+          const { readdirSync, readFileSync, writeFileSync } = require("node:fs");
+          const { join } = require("node:path");
+
+          const extensions = new Set([".deb", ".exe", ".dmg"]);
+          const files = readdirSync("release")
+            .filter((file) => extensions.has(file.slice(file.lastIndexOf("."))))
+            .sort();
+          const checksums = files
+            .map((file) => {
+              const hash = createHash("sha256").update(readFileSync(join("release", file))).digest("hex");
+              return `${hash}  ${file}`;
+            })
+            .join("\n");
+
+          writeFileSync(`release/SHA256SUMS-${process.env.PLATFORM}`, `${checksums}\n`);
+          NODE
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: ${{ matrix.upload-path }}
+
+  publish-release:
+    name: Publish GitHub release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Combine checksums
+        shell: bash
+        run: |
+          cd release-assets
+          cat SHA256SUMS-* | sort > SHA256SUMS
+          rm SHA256SUMS-*
+
+      - name: Publish release assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          title="Harvest tracker ${TAG_NAME#v}"
+          if gh release view "$TAG_NAME" >/dev/null 2>&1; then
+            gh release upload "$TAG_NAME" release-assets/* --clobber
+          else
+            gh release create "$TAG_NAME" release-assets/* --title "$title" --generate-notes --verify-tag
+          fi

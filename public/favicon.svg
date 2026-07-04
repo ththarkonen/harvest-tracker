@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Harvest tracker">
+  <rect width="64" height="64" rx="14" fill="#fbfcf9"/>
+  <path
+    d="M37.3 25.4v-6.8c0-6 4.9-10.9 10.9-10.9h4.1c.8 0 1.4.6 1.4 1.4v4.1c0 6-4.9 10.9-10.9 10.9-6 0-10.9 4.9-10.9 10.9 0 5.5 2.7 8.2 2.7 13.6 0 2.8-1 5.5-2.7 8.2"
+    fill="none"
+    stroke="#2f7d62"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="5"
+  />
+  <path
+    d="M10 24.1c8.2 0 13.6 5.5 13.6 10.9C15.5 35 10 29.5 10 24.1"
+    fill="none"
+    stroke="#2f7d62"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="5"
+  />
+  <path
+    d="M12.7 56.8h38.2"
+    fill="none"
+    stroke="#2f7d62"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    stroke-width="5"
+  />
+</svg>
