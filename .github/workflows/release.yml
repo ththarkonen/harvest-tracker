@@ -21,7 +21,7 @@ jobs:
           - platform: linux
             artifact_name: harvest-tracker-linux
             os: ubuntu-latest
-            build-command: npx electron-builder --linux deb
+            build-command: npx electron-builder --linux deb --publish never
             upload-path: |
               release/*.deb
               release/SHA256SUMS-linux
@@ -29,7 +29,7 @@ jobs:
           - platform: windows
             artifact_name: harvest-tracker-windows
             os: windows-latest
-            build-command: npx electron-builder --win nsis
+            build-command: npx electron-builder --win nsis --publish never
             upload-path: |
               release/*.exe
               release/SHA256SUMS-windows
@@ -37,7 +37,7 @@ jobs:
           - platform: macos
             artifact_name: harvest-tracker-macos-experimental
             os: macos-latest
-            build-command: npx electron-builder --mac dmg
+            build-command: npx electron-builder --mac dmg --publish never
             upload-path: |
               release/*.dmg
               release/SHA256SUMS-macos
