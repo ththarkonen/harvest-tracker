@@ -62,7 +62,7 @@ function createWindow() {
     minWidth: 1100,
     minHeight: 720,
     title: DISPLAY_NAME,
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
     ...(icon ? { icon } : {}),
     webPreferences: {
       preload: path.join(__dirname, "preload.cjs"),
@@ -78,6 +78,38 @@ function createWindow() {
   } else {
     mainWindow.loadFile(path.join(__dirname, "..", "dist", "index.html"));
   }
+}
+
+function createApplicationMenu() {
+  const template = [];
+
+  if (process.platform === "darwin") {
+    template.push({
+      label: DISPLAY_NAME,
+      submenu: [
+        { role: "about" },
+        { type: "separator" },
+        { role: "hide" },
+        { role: "hideOthers" },
+        { role: "unhide" },
+        { type: "separator" },
+        { role: "quit" }
+      ]
+    });
+  }
+
+  template.push({
+    label: "View",
+    submenu: [
+      { role: "resetZoom" },
+      { role: "zoomIn" },
+      { role: "zoomOut" },
+      { type: "separator" },
+      { role: "togglefullscreen" }
+    ]
+  });
+
+  return Menu.buildFromTemplate(template);
 }
 
 function resolveAppIcon() {
@@ -99,7 +131,7 @@ function resolveAppIcon() {
 }
 
 app.whenReady().then(async () => {
-  Menu.setApplicationMenu(null);
+  Menu.setApplicationMenu(createApplicationMenu());
   store = createSeriesStore({ dataDir: path.join(app.getPath("userData"), "data") });
   await store.ensureDirectories();
   registerIpc();

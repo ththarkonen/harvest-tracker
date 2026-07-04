@@ -6,6 +6,8 @@ import { hexToRgba } from "./text";
 import { weightPlotContext } from "./units";
 
 let localesRegistered = false;
+const LINE_MARKER_SIZE = 7;
+const PLOT_MARGIN = { t: 24, r: 38, b: 54, l: 66, pad: 4 };
 
 function plotlyLocale(language) {
   const config = languageConfig(language);
@@ -55,7 +57,7 @@ export function plotConfig(language) {
 export function baseLayout(yTitle) {
   return {
     autosize: true,
-    margin: { t: 14, r: 14, b: 44, l: 54 },
+    margin: PLOT_MARGIN,
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
     font: {
@@ -66,18 +68,16 @@ export function baseLayout(yTitle) {
     xaxis: {
       showgrid: false,
       zeroline: false,
-      title: ""
+      title: "",
+      automargin: true
     },
     yaxis: {
       title: yTitle,
       gridcolor: "#e4e9df",
-      zeroline: false
+      zeroline: false,
+      automargin: true
     },
-    legend: {
-      orientation: "h",
-      y: -0.28,
-      x: 0
-    }
+    showlegend: false
   };
 }
 
@@ -122,7 +122,7 @@ export function rawWeightPlot(series, visibleCategories, t) {
         type: "scatter",
         mode: "lines+markers",
         line: { color: category.color, width: 2 },
-        marker: { color: category.color, size: 7 }
+        marker: { color: category.color, size: LINE_MARKER_SIZE }
       };
     })
     .filter((trace) => trace.x.length);
@@ -150,7 +150,7 @@ export function rawCountPlot(series, visibleCategories, t) {
         type: "scatter",
         mode: "lines+markers",
         line: { color: category.color, width: 2 },
-        marker: { color: category.color, size: 7 }
+        marker: { color: category.color, size: LINE_MARKER_SIZE }
       };
     })
     .filter((trace) => trace.x.length);
@@ -201,7 +201,7 @@ export function cumulativeValuePlot(series, visibleCategories, t, language) {
           type: "scatter",
           mode: "lines+markers",
           line: { color: "#2f7d62", width: 2 },
-          marker: { color: "#2f7d62", size: 7 }
+          marker: { color: "#2f7d62", size: LINE_MARKER_SIZE }
         }
       ]
     : [];
@@ -242,11 +242,14 @@ function waterUsageDailyTotals(series) {
 
 export function waterUsageBarPlot(series, t) {
   const entries = waterUsageDailyTotals(series);
+  const dayBarWidth = 1000 * 60 * 60 * 16;
+  const layout = baseLayout(`${t("dailyWaterUsage")} (l)`);
   const traces = entries.length
     ? [
         {
           x: entries.map((entry) => entry.timestamp),
           y: entries.map((entry) => entry.liters),
+          width: entries.map(() => dayBarWidth),
           hovertemplate: `${t("dailyWaterUsage")}: %{y:.1f} l<br>%{x}<extra></extra>`,
           name: t("dailyWaterUsage"),
           type: "bar",
@@ -261,7 +264,12 @@ export function waterUsageBarPlot(series, t) {
   return {
     traces,
     layout: {
-      ...baseLayout(`${t("dailyWaterUsage")} (l)`),
+      ...layout,
+      bargap: 0.42,
+      xaxis: {
+        ...layout.xaxis,
+        type: "date"
+      },
       showlegend: false
     }
   };
@@ -283,7 +291,7 @@ export function cumulativeWaterPlot(series, t) {
           type: "scatter",
           mode: "lines+markers",
           line: { color: "#387fbf", width: 2 },
-          marker: { color: "#387fbf", size: 7 }
+          marker: { color: "#387fbf", size: LINE_MARKER_SIZE }
         }
       ]
     : [];
@@ -321,7 +329,7 @@ export function cumulativePlot(series, visibleCategories, key, title, unitConfig
         type: "scatter",
         mode: "lines+markers",
         line: { color: category.color, width: 2 },
-        marker: { color: category.color, size: 6 }
+        marker: { color: category.color, size: LINE_MARKER_SIZE }
       };
     })
     .filter((trace) => trace.x.length);
@@ -400,7 +408,7 @@ export function itemDistributionPlot(series, visibleCategories, t, intlLocale) {
           color: category.color,
           line: { color: "#ffffff", width: 1 },
           opacity: 0.86,
-          size: 6
+          size: LINE_MARKER_SIZE
         },
         yhoverformat: `.${categoryContext.precision}~f`,
         hovertemplate: `${t("weight")}: ${categoryContext.hoverY} ${categoryContext.unitLabel}<br>%{customdata}<extra></extra>`
@@ -423,6 +431,7 @@ export function itemDistributionPlot(series, visibleCategories, t, intlLocale) {
       showgrid: false,
       zeroline: false,
       title: "",
+      automargin: true,
       tickmode: "array",
       tickvals: visibleCategories.map((_, index) => index + 1),
       ticktext: visibleCategories.map((category) => category.name),

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.harkonen.harvesttracker</id>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Harvest tracker</name>
+  <summary>Track garden harvests, watering, and charts locally</summary>
+  <developer id="io.github.ththarkonen">
+    <name>ththarkonen</name>
+  </developer>
+  <description>
+    <p>
+      Harvest tracker is a local app for recording garden harvests by season.
+      It helps log harvested weights, item counts, individual item weights,
+      watering, and estimated value, then view the results as interactive charts.
+    </p>
+    <p>
+      Harvest data stays on your computer. Each season can be imported or exported
+      as a file, with no account or cloud service required.
+    </p>
+    <p>
+      Harvest tracker is released under the MIT License.
+    </p>
+  </description>
+  <launchable type="desktop-id">harvest-tracker.desktop</launchable>
+  <provides>
+    <binary>harvest-tracker</binary>
+  </provides>
+  <categories>
+    <category>Utility</category>
+  </categories>
+  <url type="homepage">https://github.com/ththarkonen/harvest-tracker</url>
+  <url type="bugtracker">https://github.com/ththarkonen/harvest-tracker/issues</url>
+  <url type="vcs-browser">https://github.com/ththarkonen/harvest-tracker</url>
+  <releases>
+    <release version="1.1.3" date="2026-07-04" />
+    <release version="1.1.2" date="2026-07-04" />
+    <release version="1.1.1" date="2026-07-04" />
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>

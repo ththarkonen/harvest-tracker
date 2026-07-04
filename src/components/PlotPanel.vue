@@ -7,7 +7,9 @@
       </div>
       <component :is="icon" aria-hidden="true" />
     </header>
-    <div :ref="hostRef" class="plot-host"></div>
+    <div class="plot-host">
+      <div :ref="hostRef" class="plot-surface"></div>
+    </div>
   </article>
 </template>
 

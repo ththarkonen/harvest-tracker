@@ -84,3 +84,7 @@ npm run electron:pack
 ```
 
 See [docs/PUBLICATION.md](docs/PUBLICATION.md) for release packaging notes and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for implementation details.
+
+## License
+
+Harvest tracker is released under the [MIT License](LICENSE).

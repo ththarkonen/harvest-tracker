@@ -52,6 +52,8 @@ const props = defineProps({
 });
 
 const host = ref(null);
+let resizeObserver = null;
+let resizeFrame = null;
 
 function hasHarvestEntries(series) {
   return Boolean(series?.entries?.length);
@@ -185,13 +187,25 @@ async function renderPlot() {
   if (host.value.querySelector(".empty-state")) {
     host.value.innerHTML = "";
   }
-  Plotly.react(host.value, plot.traces, plot.layout, plotConfig(props.language));
+  await Plotly.react(host.value, plot.traces, plot.layout, plotConfig(props.language));
+  queueResizePlot();
 }
 
 function resizePlot() {
   if (host.value) {
     Plotly.Plots.resize(host.value);
   }
+}
+
+function queueResizePlot() {
+  if (resizeFrame) {
+    cancelAnimationFrame(resizeFrame);
+  }
+
+  resizeFrame = requestAnimationFrame(() => {
+    resizeFrame = null;
+    resizePlot();
+  });
 }
 
 watch(
@@ -202,11 +216,22 @@ watch(
 
 onMounted(() => {
   renderPlot();
-  window.addEventListener("resize", resizePlot);
+  window.addEventListener("resize", queueResizePlot);
+
+  if (window.ResizeObserver && host.value) {
+    resizeObserver = new ResizeObserver(queueResizePlot);
+    resizeObserver.observe(host.value);
+  }
 });
 
 onBeforeUnmount(() => {
-  window.removeEventListener("resize", resizePlot);
+  window.removeEventListener("resize", queueResizePlot);
+  if (resizeObserver) {
+    resizeObserver.disconnect();
+  }
+  if (resizeFrame) {
+    cancelAnimationFrame(resizeFrame);
+  }
   if (host.value) {
     Plotly.purge(host.value);
   }
