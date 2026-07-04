@@ -112,11 +112,12 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
           title="Harvest tracker ${TAG_NAME#v}"
           if gh release view "$TAG_NAME" >/dev/null 2>&1; then
             gh release upload "$TAG_NAME" release-assets/* --clobber
           else
-            gh release create "$TAG_NAME" release-assets/* --title "$title" --generate-notes --verify-tag
+            gh release create "$TAG_NAME" release-assets/* --title "$title" --generate-notes
           fi
